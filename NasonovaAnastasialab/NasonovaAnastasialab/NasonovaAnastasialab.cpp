@@ -85,7 +85,17 @@ bool GetBool()
         }
     }
 }
+string GetString()
+{
+    while (1)
+    {
+        cin >> ws;
+        string str;
+        getline(cin, str);
 
+        return str;
+    }
+}
 
 /*void PrintPipe(const Pipe& p)
 {
@@ -157,7 +167,7 @@ void AddCSVector(CS& c, int& c_id, std::unordered_map<int, CS>& CSs) {
 }
 
 void PrintPipes(std::unordered_map<int, Pipe>::iterator& it_pipe, std::unordered_map<int, Pipe>& Pipes) {
-    cout << "PipeLine:\n ";
+    cout << "Pipes:\n ";
     it_pipe = Pipes.begin();
     for (int i = 0; it_pipe != Pipes.end(); it_pipe++) {
         cout << "ID: " << it_pipe->second.id << "\tDiameter: " << it_pipe->second.d << "\tLenght: " << it_pipe->second.l << "\tRepair: " << it_pipe->second.r << endl;
@@ -242,7 +252,7 @@ void DeleteCS(std::unordered_map<int, CS>::iterator& it_cs, std::unordered_map <
             for (int i = 0; i < ids.size(); i++) {
                 for (int j = 0; it_pipe != Pipes.end(); it_pipe++) {
                     if (it_pipe->first == ids[i]) {
-                        Pipes[it_pipe->first].r = 0;
+                        Pipes[ids[i]].r = 0;
                     }
                 }
             }
@@ -256,7 +266,7 @@ void DeleteCS(std::unordered_map<int, CS>::iterator& it_cs, std::unordered_map <
             for (int i = 0; i < ids.size(); i++) {
                 for (int j = 0; it_pipe != Pipes.end(); it_pipe++) {
                     if (it_pipe->first == ids[i]) {
-                        Pipes[it_pipe->first].r = 1;
+                        Pipes[ids[i]].r = 1;
                     }
                 }
             }
@@ -287,7 +297,8 @@ void RedactCS(CS& c) {
     else cout << "No CS data available";
 }
 
-void Save(const Pipe& p, const CS& c)
+
+/*void Save(const Pipe& p, const CS& c)
 {
     ofstream f;
     f.open("save.txt", ios_base::out);
@@ -310,9 +321,93 @@ void Save(const Pipe& p, const CS& c)
     }
     else cout << "No pipe or station";
 
+}*/
+
+void Save(std::unordered_map<int, Pipe>& Pipes, std::unordered_map<int, CS>& CSs, std::unordered_map<int, Pipe>::iterator& it_pipe, std::unordered_map<int, CS>::iterator& it_cs) 
+{
+    if (Pipes.empty() && CSs.empty())
+    {
+        cout << "No data." << endl;
+    }
+    else
+    {
+        ofstream file;
+        cout << "Enter the file name: ";
+        string str;
+        str = GetString();
+        file.open(str, ios_base::out);
+
+        if (file.good())
+        {
+            it_pipe = Pipes.begin();
+            for (int i = 0; it_pipe != Pipes.end(); it_pipe++)
+            {
+                file << "pipes" << endl
+                    << it_pipe->second.id << endl
+                    << it_pipe->second.d << endl
+                    << it_pipe->second.l << endl
+                    << it_pipe->second.r << endl;
+            }
+
+            it_cs = CSs.begin();
+            for (int i = 0; it_cs != CSs.end(); it_cs++)
+            {
+                file << "cs" << endl
+                    << it_cs->second.id << endl
+                    << it_cs->second.name << endl
+                    << it_cs->second.numA << endl
+                    << it_cs->second.numW << endl;
+            }
+            file.close();
+            cout << "Saved." << endl;
+
+        }
+        
+    }
+}
+void Load(std::unordered_map<int, Pipe>& Pipes, std::unordered_map<int, CS>& CSs, std::unordered_map<int, Pipe>::iterator& it_pipe, std::unordered_map<int, CS>::iterator& it_cs)
+{
+    ifstream file;
+    cout << "Enter thhe file name: ";
+    string str;
+    str = GetString();
+    file.open(str, ios::in);
+    if (file.good())
+    {
+        Pipes.clear();
+        CSs.clear();
+
+        while (!file.eof())
+        {
+            getline(file, str);
+            if (str == "pipes")
+            {
+                Pipe p_p;
+                file >> p_p.id;
+                file >> p_p.d;
+                file >> p_p.l;
+                file >> p_p.r;
+                Pipes.insert({ p_p.id, p_p });
+            }
+            if (str == "cs")
+            {
+                CS c_c;
+                file >> c_c.id;
+                file.ignore(32767, '\n');
+                string(c_c.name);
+                getline(file, c_c.name);
+                file >> c_c.numA;
+                file >> c_c.numW;
+                CSs.insert({ c_c.id, c_c });
+
+            }
+      
+        }
+    }
+    cout << "Loaded.";
 }
 
-void Load(Pipe& p, CS& c)
+/*void Load(Pipe& p, CS& c)
 {
     ifstream f;
     f.open("save.txt", ios::in);
@@ -344,9 +439,29 @@ void Load(Pipe& p, CS& c)
         }
         cout << "Loaded";
     }
+}*/
+
+void FilterSearchPipe( std::unordered_map <int, Pipe>& Pipes, std::unordered_map <int, Pipe>::iterator& it_pipe) {
+   
+    cout << "Search" << endl
+        << "1. by ID" << endl
+        << "2. on the basis of 'under repair'" << endl;
+    int menu;
+    menu = GetInt();
+    switch (menu)
+    {
+        case 1:
+        {
+            cout << "Enter the pipe id: ";
+            int id;
+            id = GetInt();
+            it_pipe;
+        }
+    default:
+        break;
+    }
+
 }
-
-
 
 int main()
 {
@@ -361,7 +476,7 @@ int main()
     // int id;
     int p_id = 0;
     int c_id = 0;
-    string str;
+    //string str;
 
     unordered_map <int, Pipe> ::iterator it_pipe = Pipes.begin();
     unordered_map <int, CS> ::iterator it_cs = CSs.begin();
@@ -417,12 +532,12 @@ int main()
         }
         case 6:
         {
-            Save(p, c);
+            Save(Pipes,CSs, it_pipe, it_cs);
             break;
         }
         case 7:
         {
-            Load(p, c);
+            Load(Pipes, CSs, it_pipe, it_cs);
             break;
         }
         case 8:
