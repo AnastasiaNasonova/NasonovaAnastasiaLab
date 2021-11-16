@@ -10,22 +10,11 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include "Pipe.h"
+#include "CS.h"
+
 
 using namespace std;
-struct Pipe
-{
-    int id;
-    int d;
-    float l;
-    bool r;
-};
-
-struct CS
-{
-    int id;
-    string name;
-    int numW, numA;
-};
 
 template <typename T>
 T GetCorrectNumber(T min, T max)
