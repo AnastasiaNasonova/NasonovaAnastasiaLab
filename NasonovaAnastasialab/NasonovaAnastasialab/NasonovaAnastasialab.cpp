@@ -12,8 +12,6 @@
 #include <unordered_map>
 
 using namespace std;
-
-
 struct Pipe
 {
     int id;
@@ -29,62 +27,20 @@ struct CS
     int numW, numA;
 };
 
-int GetInt(int min = 0, int max = INT_MAX)
+template <typename T>
+T GetCorrectNumber(T min, T max)
 {
-    while (1)
+    T x;
+    while ((cin >> x).fail() || x < min || x > max)
     {
-        int number;
-        cin >> number;
+        cin.clear();
+        cin.ignore(10000, '\n');
+        cout << "Enter number (" << min << "-" << max << ") again:";
+    }
+    return x;
 
-        if (cin.fail() || number < min || number > max || cin.peek() != '\n')
-        {
-            cin.clear();
-            cin.ignore(32767, '\n');
-            cout << "Error. Enter  a different value. ";
-        }
-        else
-        {
-            return number;
-        }
-    }
 }
-float GetFloat(float min = 0, float max = FLT_MAX)
-{
-    while (1)
-    {
-        float number;
-        cin >> number;
 
-        if (cin.fail() || number < min || number > max || cin.peek() != '\n')
-        {
-            cin.clear();
-            cin.ignore(32767, '\n');
-            cout << "Error. Enter  a different value. ";
-        }
-        else
-        {
-            return number;
-        }
-    }
-}
-bool GetBool()
-{
-    while (1)
-    {
-        bool number;
-        cin >> number;
-        if (cin.fail())
-        {
-            cin.clear();
-            cin.ignore(32767, '\n');
-            cout << " Enter 1 or 0 ";
-        }
-        else
-        {
-            return number;
-        }
-    }
-}
 string GetString()
 {
     while (1)
@@ -97,41 +53,20 @@ string GetString()
     }
 }
 
-/*void PrintPipe(const Pipe& p)
-{
-    if (p.id > 0) {
-        cout << "Pipe " << endl << endl;
-        cout << "Pipe ID number: " << p.id << "  Diameter: " << p.d << " mm " << " Lenght: " << p.l << " km\n";
-        cout << "Pipe under repair: " << p.r << endl << endl; \
-    }
-    else cout << "No data pipe" << endl;
-}*/
-
-
-/*void PrintCS(const CS& c)
-{
-    if (c.id > 0) {
-        cout << "Compressor Station " << endl << endl;
-        cout << "CS ID number: " << c.id << " Name of the Compressor Station: " << c.name << " Number of workshops: " << c.numA << " Number of workshops in olperation: " << c.numW;
-    }
-    else cout << "No data CS" << endl;
-}*/
-
-Pipe AddPipe()
+/*Pipe AddPipe()
 {
     Pipe p = {};
     p.id = 1;
     cout << "Enter the diameter from 500 to 1428: ";
-    p.d = GetInt(500, 1428);
+    p.d = GetCorrectNumber(500, 1428);
 
     cout << "Enter the lenght from 10 to 1000 ";
-    p.l = GetFloat(10, 1000);
+    p.l = GetCorrectNumber(10.0, 1000.0);
 
     p.r = 0;
 
     return p;
 }
-
 
 CS AddCS()
 {
@@ -141,18 +76,18 @@ CS AddCS()
     cin >> ws;
     getline(cin, c.name);
     cout << "Number of workshops from 0 to 20 ";
-    c.numA = GetInt(0, 20);
+    c.numA = GetCorrectNumber(0, 20);
 
     cout << "Number of workshops in olperation ";
-    c.numW = GetInt();
-    while (c.numW > c.numA) {
-        cout << "The number of workstation must not exceed the number of all station " << endl << "Enter another number ";
-        c.numW = GetInt();
-    };
+    c.numW = GetCorrectNumber (0, c.numA);
+    //while (c.numW > c.numA) {
+        //cout << "The number of workstation must not exceed the number of all station " << endl << "Enter another number ";
+        //c.numW = GetCorrectNumber(0, INT_MAX);
+   // };
     return c;
-}
+}*/
 
-void AddPipeVector(Pipe& p, int& p_id, std::unordered_map<int, Pipe>& Pipes) {
+/*void AddPipeVector(Pipe& p, int& p_id, std::unordered_map<int, Pipe>& Pipes) {
     p = AddPipe();
     p_id++;
     p.id = p_id;
@@ -186,11 +121,11 @@ void DeletePipe(std::unordered_map <int, Pipe>::iterator& it_pipe, std::unordere
     cout << "Enter ID to delete: ";
     vector <int> ids;
     int id;
-    id = GetInt();
+    id = GetCorrectNumber(0, INT_MAX);
     while (id != 0) {
         ids.push_back(id);
         cout << "Press 0 to delete or add ID number ";
-        id = GetInt();
+        id = GetCorrectNumber(0, INT_MAX);
     }
     it_pipe = Pipes.begin();
     for (int i = 0; i < ids.size(); i++) {
@@ -205,11 +140,11 @@ void DeleteCS(std::unordered_map<int, CS>::iterator& it_cs, std::unordered_map <
     cout << "Enter ID to delete: ";
     vector <int> ids;
     int id;
-    id = GetInt();
+    id = GetCorrectNumber(0, INT_MAX);
     while (id != 0) {
         ids.push_back(id);
         cout << "Press 0 to delete or add ID number ";
-        id = GetInt();
+        id = GetCorrectNumber(0, INT_MAX);
     }
     it_cs = CSs.begin();
     for (int i = 0; i < ids.size(); i++) {
@@ -218,17 +153,18 @@ void DeleteCS(std::unordered_map<int, CS>::iterator& it_cs, std::unordered_map <
     }
     ids.clear();
     cout << "Deleted." << endl;
-}
+}*/
 
-/*void RedactPipe(Pipe& p)
+void RedactPipe(Pipe& p)
 {
         if (p.id > 0) {
         cout << "Enter the state of the pipe (1 - under repair; 0 - not under repair)";
-        p.r = GetBool();
+        p.r = GetCorrectNumber(0, 1);
 
         }
     else cout << "No pipe data available"; //данных о трубе нет
-}*/
+}
+
 /*void RedactPipes(std::unordered_map <int, Pipe>::iterator& it_pipe, std::unordered_map <int, Pipe>& Pipes) {
     cout << "Enter ID to redact: ";
     vector <int> ids;
@@ -282,48 +218,19 @@ void DeleteCS(std::unordered_map<int, CS>::iterator& it_cs, std::unordered_map <
 
         }
 }*/
+
 void RedactCS(CS& c) {
 
     if (c.id > 0) {
         cout << "How many workshops are in operation? ";
-        c.numW = GetInt();
-
-        while (c.numW > c.numA) {
-            cout << "The number of workstation must not exceed the number of all station " << endl << "Enter another number";
-            c.numW = GetInt();
-        };
-
+        c.numW = GetCorrectNumber(0, c.numA);
     }
     else cout << "No CS data available";
 }
 
 
-/*void Save(const Pipe& p, const CS& c)
-{
-    ofstream f;
-    f.open("save.txt", ios_base::out);
 
-    if (f.good())
-    {
-        if (p.id > 0)
-        {
-            f << "pipe" << endl << p.id << endl << p.l << endl << p.d << endl << p.r << endl;
-        }
-
-        if (c.id > 0)
-        {
-            f << "station" << endl << c.id << endl << c.name << endl << c.numA << endl << c.numW << endl;
-
-        }
-        f.close();
-        cout << "Saved";
-
-    }
-    else cout << "No pipe or station";
-
-}*/
-
-void Save(std::unordered_map<int, Pipe>& Pipes, std::unordered_map<int, CS>& CSs, std::unordered_map<int, Pipe>::iterator& it_pipe, std::unordered_map<int, CS>::iterator& it_cs) 
+/*void Save(std::unordered_map<int, Pipe>& Pipes, std::unordered_map<int, CS>& CSs, std::unordered_map<int, Pipe>::iterator& it_pipe, std::unordered_map<int, CS>::iterator& it_cs)
 {
     if (Pipes.empty() && CSs.empty())
     {
@@ -405,82 +312,136 @@ void Load(std::unordered_map<int, Pipe>& Pipes, std::unordered_map<int, CS>& CSs
         }
     }
     cout << "Loaded.";
-}
-
-/*void Load(Pipe& p, CS& c)
-{
-    ifstream f;
-    f.open("save.txt", ios::in);
-    if (f.good())
-    {
-        while (!f.eof())
-        {
-            string str;
-            f >> str;
-            //cout << str;
-            if (str == "pipe")
-            {
-                f >> p.id;
-                f >> p.d;
-                f >> p.l;
-                f >> p.r;
-            }
-
-            if (str == "station")
-            {
-                f >> c.id;
-                f.ignore(32767, '\n');
-                string(c.name);
-                getline(f, c.name);
-                f >> c.numA;
-                f >> c.numW;
-            }
-
-        }
-        cout << "Loaded";
-    }
 }*/
 
-void FilterSearchPipe( std::unordered_map <int, Pipe>& Pipes, std::unordered_map <int, Pipe>::iterator& it_pipe) {
-   
-    cout << "Search" << endl
-        << "1. by ID" << endl
-        << "2. on the basis of 'under repair'" << endl;
-    int menu;
-    menu = GetInt();
-    switch (menu)
+void Savep(ofstream& fout, const Pipe& p)
+{
+    if (p.l != 0 && p.d != 0)
     {
-        case 1:
-        {
-            cout << "Enter the pipe id: ";
-            int id;
-            id = GetInt();
-            it_pipe;
-        }
-    default:
-        break;
+        fout << p.id << endl << p.l << endl << p.d << endl << p.r << endl;
     }
-
+     
 }
 
+void Savec(ofstream& fout, const CS& c)
+{
+    if (c.numA != 0)
+    {
+        fout << c.id << endl << c.name << endl << c.numA << endl << c.numW << endl;
+    }
+}
+
+Pipe Loadp(ifstream& fin)
+{
+        Pipe p;
+            fin >> p.id;
+            fin >> p.l;
+            fin >> p.d;
+            fin >> p.r;
+
+           return p;
+     
+}
+
+CS Loadc(ifstream& fin)
+{
+    CS c;
+        fin >> c.id;
+        //getline(fin, str);
+        // c.id = stoi(str);
+        fin.ignore(256, '\n');
+        //string(c.name);
+        getline(fin, c.name);
+        fin >> c.numA;
+        fin >> c.numW;
+    
+    return c;
+}
+
+
+istream& operator >> (istream& in, Pipe& p)
+{
+    p.id = 1;
+    cout << "Enter the diameter from 500 to 1428: ";
+    p.d = GetCorrectNumber(500, 1428);
+
+    cout << "Enter the lenght from 10 to 1000 ";
+    p.l = GetCorrectNumber(10.0, 1000.0);
+
+    p.r = 0;
+    return in;
+}
+
+ostream& operator << (ostream& out, const Pipe& p)
+{
+
+    if (p.id > 0)
+    {
+        out << "Pipe ID number: " << p.id << "\tDiameter: " << p.d << " mm " << "\tLenght: " << p.l << " km" << "\tPipe under repair: " << p.r << endl;
+    }
+    else cout << "No data pipe.";
+    return out;
+}
+
+istream& operator >> (istream& in, CS& c)
+{
+    c.id = 1;
+    cout << "Name of the Compressor Station ";
+    cin >> ws;
+    getline(cin, c.name);
+    cout << "Number of workshops from 0 to 20 ";
+    c.numA = GetCorrectNumber(0, 20);
+
+    cout << "Number of workshops in olperation ";
+    c.numW = GetCorrectNumber(0, c.numA);
+    return in;
+}
+
+ostream& operator << (ostream& out, const CS& c)
+{
+
+    if (c.id > 0) {
+        
+        cout << "CS ID number: " << c.id << "\tName of the Compressor Station: " << c.name << "\tNumber of workshops: " << c.numA << "\tNumber of workshops in olperation: " << c.numW << endl;
+    }
+    else cout << "No data CS." << endl;
+    return out;
+}
+
+Pipe& SelectPipe(vector<Pipe>& Pipes)
+{
+    cout << "Enter index: ";
+    unsigned int index = GetCorrectNumber(1u, Pipes.size());
+    return Pipes[index-1];
+}
+
+CS& SelectCS(vector<CS>& CSs)
+{
+    cout << "Enter index: ";
+    unsigned int index = GetCorrectNumber(1u, CSs.size());
+    return CSs[index - 1];
+}
 int main()
 {
     int menu;
 
-    Pipe p = {};
-    CS c = {};
+    //Pipe p = {};
+    //CS c = {};
 
-    unordered_map <int, Pipe> Pipes = {};
-    unordered_map <int, CS> CSs = {};
+    //unordered_map <int, Pipe> Pipes = {};
+    //unordered_map <int, CS> CSs = {};
 
     // int id;
     int p_id = 0;
     int c_id = 0;
     //string str;
 
-    unordered_map <int, Pipe> ::iterator it_pipe = Pipes.begin();
-    unordered_map <int, CS> ::iterator it_cs = CSs.begin();
+    //unordered_map <int, Pipe> ::iterator it_pipe = Pipes.begin();
+    //unordered_map <int, CS> ::iterator it_cs = CSs.begin();
 
+    vector <Pipe> Pipes;
+    vector <CS> CSs;
+ 
 
     for (;;) {
         cout << "\n 1. Add a pipe"
@@ -492,7 +453,7 @@ int main()
             << "\n 7. Load"
             << "\n 0. Exit\n";
 
-        menu = GetInt();
+        menu = GetCorrectNumber(0, 9);
 
         switch (menu)
         {
@@ -500,54 +461,92 @@ int main()
             return 0;
         case 1:
         {
-            AddPipeVector(p, p_id, Pipes);
-            //p = AddPipe();
+            Pipe p;
+            cin >> p;
+            Pipes.push_back(p);
+            //AddPipeVector(p, p_id, Pipes);
             break;
         }
         case 2:
         {
-            AddCSVector(c, c_id, CSs);
-            //c = AddCS();
+            CS c;
+            cin >> c;
+            CSs.push_back(c);
+            //AddCSVector(c, c_id, CSs);
             break;
         }
         case 3:
-        {
-            //PrintPipe(p);
-            PrintPipes(it_pipe, Pipes);
-            PrintCSs(it_cs, CSs);
-            //PrintCS(c);
+        {    
+                cout << "Pipe " << endl << endl;
+                for (int i = 0; i < Pipes.size(); i++)
+                    cout << Pipes[i];
 
+                cout << "Compressor Station " << endl << endl;
+                for (int i = 0; i < CSs.size(); i++)
+                    cout << CSs[i];
+        
             break;
         }
         case 4:
         {
             //RedactPipes(it_pipe, Pipes);
-            //RedactPipe(p);
+            RedactPipe(SelectPipe(Pipes));
             break;
         }
         case 5:
         {
-            //RedactCS(c);
+            RedactCS(SelectCS(CSs));
+
             break;
         }
         case 6:
         {
-            Save(Pipes,CSs, it_pipe, it_cs);
+            ofstream fout;
+            fout.open("save.txt", ios::out);
+            if (fout.good()) 
+            {
+                fout << Pipes.size() << endl;
+                for (Pipe p: Pipes)
+                    Savep(fout, p);
+
+                fout << CSs.size() << endl;
+                for (CS c : CSs)
+                    Savec(fout, c);
+                fout.close();
+            }
+           cout << "Saved." << endl;
             break;
         }
         case 7:
         {
-            Load(Pipes, CSs, it_pipe, it_cs);
+            ifstream fin;
+            fin.open("save.txt", ios::in);
+            if (fin.is_open())
+            {
+                int count1;
+                fin >> count1;
+                while (count1--)
+                Pipes.push_back(Loadp(fin));
+
+                int count2;
+                fin >> count2;
+                while (count2--)
+                CSs.push_back(Loadc(fin));
+
+                 fin.close();
+              
+            }
+           
             break;
         }
         case 8:
         {
-            DeletePipe(it_pipe, Pipes);
+            //DeletePipe(it_pipe, Pipes);
             break;
         }
         case 9:
         {
-            DeleteCS(it_cs, CSs);
+            //DeleteCS(it_cs, CSs);
             break;
         }
         default:
