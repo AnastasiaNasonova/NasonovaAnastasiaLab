@@ -28,6 +28,31 @@ istream& operator >> (istream& in, CS& c)
     return in;
 }
 
+std::ofstream& operator<<(std::ofstream& fout, const CS& c)
+{
+    if (fout.is_open())
+    {
+        fout << c.id << endl
+            << c.name << endl
+            << c.numA << endl
+            << c.numW << endl;
+    }
+    return fout;
+}
+
+std::ifstream& operator>>(std::ifstream& fin, CS& c)
+{
+   if (fin.is_open())
+   {
+       fin >> c.id;
+       fin >> ws;
+       getline(fin, c.name);
+       fin >> c.numA;
+       fin >> c.numW;
+   }
+   return fin;
+}
+
 ostream& operator << (ostream& out, const CS& c)
 {
     cout << "CS ID number: " << c.id << "\tName of the Compressor Station: " << c.name << "\tNumber of workshops: " << c.numA << "\tNumber of workshops in olperation: " << c.numW << endl;

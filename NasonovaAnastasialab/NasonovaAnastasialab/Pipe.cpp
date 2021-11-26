@@ -32,3 +32,27 @@ istream& operator >> (istream& in, Pipe& p)
     p.r = 0;
     return in;
 }
+
+std::ofstream& operator << (std::ofstream& fout, const Pipe& p)
+{
+    if (fout.is_open())
+    {
+        fout << p.id << endl
+            << p.d << endl
+            << p.l << endl
+            << p.r << endl;
+    }
+    return fout;
+}
+
+std::ifstream& operator>>(std::ifstream& fin, Pipe& p)
+{
+    if (fin.is_open())
+    {
+        fin >> p.id;
+        fin >> p.d;
+        fin >> p.l;
+        fin >> p.r;
+    }
+    return fin;
+}

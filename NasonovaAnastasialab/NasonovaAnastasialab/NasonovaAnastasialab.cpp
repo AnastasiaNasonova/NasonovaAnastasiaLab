@@ -27,7 +27,6 @@ T GetCorrectNumber(T min, T max)
 
 }
 
-
 string GetString()
 {
     while (1)
@@ -72,46 +71,44 @@ void PrintCS(const unordered_map <int, CS>& CSs)
 //}
 
 
-//void Savep(ofstream& fout, const Pipe& p)
-//{
-//    if (p.l != 0 && p.d != 0)
-//    {
-//        fout << p.id << endl << p.l << endl << p.d << endl << p.r << endl;
-//    }
-//     
-//}
+void Savep(const unordered_map <int, Pipe>& Pipes, ofstream& fout)
+{
+    for (auto& p : Pipes)
+        fout << p.second;
+}
 
-//void Savec(ofstream& fout, const CS& c)
-//{
-//    if (c.numA != 0)
-//    {
-//        fout << c.id << endl << c.name << endl << c.numA << endl << c.numW << endl;
-//    }
-//}
+void Savec(const unordered_map <int, CS>& CSs, ofstream& fout)
+{
+    for (auto& c : CSs)
+        fout << c.second;
+}
 
-//Pipe Loadp(ifstream& fin)
-//{
-//    Pipe p;
-//            fin >> p.id;
-//            fin >> p.l;
-//            fin >> p.d;
-//            fin >> p.r;
-//
-//           return p;
-//     
-//}
 
-//CS Loadc(ifstream& fin)
-//{
-//    CS c;
-//        fin >> c.id;
-//        fin.ignore(256, '\n');
-//        getline(fin, c.name);
-//        fin >> c.numA;
-//        fin >> c.numW;
-//    
-//    return c;
-//}
+void Load(unordered_map<int, Pipe>& Pipes, unordered_map<int, CS>& CSs, ifstream& fin)
+{
+    int count1, count2, MaxPipeID, MaxCSID;
+    string str;
+    fin >> count1;
+    fin >> MaxPipeID;
+    while(count1--)
+    {
+        Pipe p;
+        fin >> p;
+        Pipes.insert({ p.getId(), p });
+    }
+
+    fin >> count2;
+    fin >> MaxCSID;
+    while(count2--)
+    {
+        CS c;
+        fin >> c;
+        CSs.insert({ c.getID(), c });
+
+    }
+    Pipe::setMaxID(MaxPipeID);
+    CS::setMaxID(MaxCSID);
+}
 
 //istream& operator >> (istream& in, Pipe& p)
 //{
@@ -149,16 +146,16 @@ void PrintCS(const unordered_map <int, CS>& CSs)
 //    return in;
 //}
 
-ostream& operator << (ostream& out, const CS& c)
-{
-
-    if (c.numA > 0) {
-        
-        cout << "CS ID number: " << c.id << "\tName of the Compressor Station: " << c.name << "\tNumber of workshops: " << c.numA << "\tNumber of workshops in olperation: " << c.numW << endl;
-    }
-    else cout << "No data CS." << endl;
-    return out;
-}
+//ostream& operator << (ostream& out, const CS& c)
+//{
+//
+//    if (c.numA > 0) {
+//        
+//        cout << "CS ID number: " << c.id << "\tName of the Compressor Station: " << c.name << "\tNumber of workshops: " << c.numA << "\tNumber of workshops in olperation: " << c.numW << endl;
+//    }
+//    else cout << "No data CS." << endl;
+//    return out;
+//}
 
 Pipe& SelectPipe(unordered_map<int, Pipe>& Pipes)
 {
@@ -262,7 +259,7 @@ int main()
         {
             CS c;
             cin >> c;
-            CSs.insert({c.getId(), c});
+            CSs.insert({c.getID(), c});
             break;
         }
         case 3:
@@ -275,7 +272,7 @@ int main()
             
             if (CSs.size() != 0)
             {
-                cout << "Compession Station: " << endl;
+                cout << endl << "Compession Station: " << endl;
                 PrintCS(CSs);
             }       
             break;
@@ -292,42 +289,46 @@ int main()
         }
         case 6:
         {
-            /*ofstream fout;
-            fout.open("save.txt", ios::out);
-            if (fout.good()) 
+            string name;
+            cout << "Enter name file: " << endl;
+            cin.ignore(10000, '\n');
+            getline(cin, name);
+            ofstream fout;
+            fout.open(name + ".txt", ios::out);
+            if (fout.is_open())
             {
-                fout << Pipes.size() << endl;
-                for (Pipe p: Pipes)
-                    Savep(fout, p);
+                if (Pipes.size() != 0) 
+                {
+                   fout << Pipes.size() << endl << Pipe::getMaxID() << endl;
+                   Savep(Pipes, fout);
+                }
+                    
+                if (CSs.size() != 0)
+                {
+                    fout << CSs.size() << endl << CS::getMaxID() << endl;
+                    Savec(CSs, fout);
+                }
 
-                fout << CSs.size() << endl;
-                for (CS c : CSs)
-                    Savec(fout, c);
-                fout.close();
+                cout << "Saved.";
             }
-           cout << "Saved." << endl;
-            break;*/
+            fout.close();
+            break;
         }
         case 7:
         {
-            /*ifstream fin;
-            fin.open("save.txt", ios::in);
+            string name;
+            cout << "Enter name file: " << endl;
+            cin.ignore(10000, '\n');
+            getline(cin, name);
+            ifstream fin;
+            fin.open(name + ".txt", ios::in);
+            
             if (fin.is_open())
-            {
-                int count1;
-                fin >> count1;
-                while (count1--)
-                Pipes.push_back(Loadp(fin));
-
-                int count2;
-                fin >> count2;
-                while (count2--)
-                CSs.push_back(Loadc(fin));
-
-                 fin.close();
-              
-            }*/
+                Load(Pipes, CSs, fin);
+            fin.close();
+            cout << "Loaded.";
            
+
             break;
         }
         case 8:
