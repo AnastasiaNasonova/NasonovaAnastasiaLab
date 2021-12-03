@@ -69,6 +69,7 @@ int RedactPipes(unordered_map<int, Pipe>& Pipes)
             cout << "Pipe edided." << endl;
             return id;
         }
+        else cout << "No such pipe ID." << endl;
     }
 }
 
@@ -83,6 +84,29 @@ int RedactCSs(unordered_map<int, CS>& CSs)
             cout << "CS edided." << endl;
             return id;
         }
+        else cout << "No such CS ID." << endl;
+    }
+}
+
+template <typename T>
+void del(T& map, int id)
+{
+    if (map.find(id) != map.end())
+        map.erase(id);
+}
+
+template <typename T>
+void Delete(T& map) // для сони расписать для кс и труб отдельно, через каждую функцию без шаблона
+{
+    cout << "Enter ID: " << endl;
+    while (true) {
+        int id = GetCorrectNumber(0, INT_MAX);
+        if (SearchByID(map, id) != 0) {
+            del(map, id);
+            cout << "Deleted." << endl;
+            return;
+        }
+        else cout << "No such id." << endl;
     }
 }
 
@@ -143,8 +167,6 @@ void Load(unordered_map<int, Pipe>& Pipes, unordered_map<int, CS>& CSs, ifstream
 
 template<typename T, typename T_param>
 using Filter = bool(*)(const T& map, T_param param);
-
-
 
 template<typename T, typename T_param>
 vector<int> search_filter(const unordered_map<int, T>& map, Filter<T, T_param> f, T_param param)
@@ -315,34 +337,12 @@ int main()
         }
         case 8:
         {
-            //string name;
-            //cout << "Enter name Compressor Station ";
-            //cin >> name;
-            //for (int i : FindCSbyFilter<string>(CSs, CheckbyName, name))
-            //{
-            //    CSs.erase(CSs.begin()+i);
-            //    //cout << CSs[i];
-            //}
-
-            /*int numW;
-            cout << "Enter working cex ";
-            cin >> numW;
-
-            for (int i : FindCSbyFilter(CSs, CheckbyWorkingCex, numW))
-                cout << CSs[i];*/
+            Delete(Pipes);
             break;
         }
         case 9:
         {
-           /* int r;
-            cout << "Enter pipe rapair";
-            cin >> r;
-
-            for (int i : FindPipebyFilter(Pipes, CheckPipeByRepair, r))
-
-                cout << Pipes[i];
-            */
-            //DeleteCS(it_cs, CSs);
+            Delete(CSs);
             break;
         }
         case 0:
