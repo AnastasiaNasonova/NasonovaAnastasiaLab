@@ -19,6 +19,7 @@ public:
     std::string getName() const { return name; }
     int getNumA() const { return numA; }
     int getNumW() const { return numW; }
+    void redact();
 
     friend std::ostream& operator <<(std::ostream& out, const CS& c);
     friend std::istream& operator >>(std::istream& in, CS& c);

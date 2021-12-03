@@ -14,6 +14,11 @@ Pipe::Pipe()
 	r = 0;
 }
 
+void Pipe::redact()
+{
+    r = !r;
+}
+
 
 ostream& operator << (std::ostream& out, const Pipe& p)
 {

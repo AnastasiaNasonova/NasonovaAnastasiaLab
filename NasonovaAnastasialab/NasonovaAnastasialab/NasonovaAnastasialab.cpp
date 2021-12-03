@@ -51,25 +51,40 @@ void PrintCS(const unordered_map <int, CS>& CSs)
         cout << c.second;
 }
 
-//void RedactPipe(Pipe& p)
-//{
-//        if (p.d > 0) {
-//        cout << "Enter the state of the pipe (1 - under repair; 0 - not under repair)";
-//        p.r = GetCorrectNumber(0, 1);
-//
-//        }
-//    else cout << "No pipe data available"; //данных о трубе нет
-//}
+template<typename T>
+int SearchByID(const T& map, int id) {
+    if (map.find(id) != map.end())
+        return id;
+    return 0;
+}
 
-//void RedactCS(CS& c) {
-//
-//    if (c.id > 0) {
-//        cout << "How many workshops are in operation? ";
-//        c.numW = GetCorrectNumber(0, c.numA);
-//    }
-//    else cout << "No CS data available";
-//}
+int RedactPipes(unordered_map<int, Pipe>& Pipes)
+{
+    cout << "Enter ID Pipe: " << endl;
+    while (true) {
+        int id = GetCorrectNumber(0, INT_MAX);
+        if (SearchByID(Pipes, id) != 0)
+        {
+            Pipes[id].redact();
+            cout << "Pipe edided." << endl;
+            return id;
+        }
+    }
+}
 
+int RedactCSs(unordered_map<int, CS>& CSs)
+{
+    cout << "Enter ID CS: " << endl;
+    while (true) {
+        int id = GetCorrectNumber(0, INT_MAX);
+        if (SearchByID(CSs, id) != 0)
+        {
+            CSs[id].redact();
+            cout << "CS edided." << endl;
+            return id;
+        }
+    }
+}
 
 void Savep(const unordered_map <int, Pipe>& Pipes, ofstream& fout)
 {
@@ -110,88 +125,50 @@ void Load(unordered_map<int, Pipe>& Pipes, unordered_map<int, CS>& CSs, ifstream
     CS::setMaxID(MaxCSID);
 }
 
-//istream& operator >> (istream& in, Pipe& p)
+
+
+//Pipe& SelectPipe(unordered_map<int, Pipe>& Pipes)
 //{
-//    cout << "Enter the diameter from 500 to 1428: ";
-//    p.d = GetCorrectNumber(500, 1428);
+//    cout << "Enter index: ";
+//    unsigned int index = GetCorrectNumber(1u, Pipes.size());
+//    return Pipes[index - 1];
+//}
 //
-//    cout << "Enter the lenght from 10 to 1000 ";
-//    p.l = GetCorrectNumber(10.0, 1000.0);
-//
-//    p.r = 0;
-//    return in;
+//CS& SelectCS(unordered_map<int, CS>& CSs)
+//{
+//    cout << "Enter index: ";
+//    unsigned int index = GetCorrectNumber(1u, CSs.size());
+//    return CSs[index - 1];
 //}
 
-//ostream& operator << (ostream& out, const Pipe& p)
-//{
-//
-//    if (p.d > 0)
-//    {
-//        out << "Pipe ID number: " << p.id << "\tDiameter: " << p.d << " mm " << "\tLenght: " << p.l << " km" << "\tPipe under repair: " << p.r << endl;
-//    }
-//   // else cout << "No data pipe.";
-//    return out;
-//}
+template<typename T, typename T_param>
+using Filter = bool(*)(const T& map, T_param param);
 
-//istream& operator >> (istream& in, CS& c)
-//{
-//        cout << "Name of the Compressor Station ";
-//    cin >> ws;
-//    getline(cin, c.name);
-//    cout << "Number of workshops from 0 to 20 ";
-//    c.numA = GetCorrectNumber(0, 20);
-//
-//    cout << "Number of workshops in olperation ";
-//    c.numW = GetCorrectNumber(0, c.numA);
-//    return in;
-//}
 
-//ostream& operator << (ostream& out, const CS& c)
-//{
-//
-//    if (c.numA > 0) {
-//        
-//        cout << "CS ID number: " << c.id << "\tName of the Compressor Station: " << c.name << "\tNumber of workshops: " << c.numA << "\tNumber of workshops in olperation: " << c.numW << endl;
-//    }
-//    else cout << "No data CS." << endl;
-//    return out;
-//}
 
-Pipe& SelectPipe(unordered_map<int, Pipe>& Pipes)
+template<typename T, typename T_param>
+vector<int> search_filter(const unordered_map<int, T>& map, Filter<T, T_param> f, T_param param)
 {
-    cout << "Enter index: ";
-    unsigned int index = GetCorrectNumber(1u, Pipes.size());
-    return Pipes[index - 1];
-}
-
-CS& SelectCS(unordered_map<int, CS>& CSs)
-{
-    cout << "Enter index: ";
-    unsigned int index = GetCorrectNumber(1u, CSs.size());
-    return CSs[index - 1];
-}
-
-template<typename T>
-using Filterp = bool(*)(const Pipe& p, T param);
-
-//bool CheckPipeByRepair(const Pipe& p, int param)
-//{
-//    return p.r == param;
-//}
-
-template<typename T>
-unordered_map <int, Pipe> FindPipebyFilter(const unordered_map<int, Pipe>& Pipes, Filterp<T> f, T param)
-{
-    unordered_map <int, Pipe> res;
-    int i = 0;
-    for (auto& p : Pipes)
-    {
-        if (f(p, param))
-            res.insert({ i, p });
-        i++;
-    }
+    vector<int> res;
+    for (auto& m : map)
+        if (f(m.second, param))
+            res.push_back(m.first);
     return res;
 }
+
+//template<typename T>
+//unordered_map <int, Pipe> FindPipebyFilter(const unordered_map<int, Pipe>& Pipes, Filter<T> f, T param)
+//{
+//    unordered_map <int, Pipe> res;
+//    int i = 0;
+//    for (auto& p : Pipes)
+//    {
+//        if (f(p, param))
+//            res.insert({ i, p });
+//        i++;
+//    }
+//    return res;
+//}
 
 
 template<typename T>
@@ -279,12 +256,17 @@ int main()
         }
         case 4:
         {
-           // RedactPipe(SelectPipe(Pipes);
+            if (Pipes.size() != 0)
+                int id = RedactPipes(Pipes);
+            else cout << "No Pipe." << endl;
+
             break;
         }
         case 5:
         {
-            //RedactCS(SelectCS(CSs));
+            if (CSs.size() != 0)
+                int id = RedactCSs(CSs);
+            else cout << "No Station." << endl;
             break;
         }
         case 6:

@@ -15,6 +15,12 @@ CS::CS()
 	numW = 0;
 }
 
+void CS::redact()
+{
+    cout << "Enter how many workshops are working now: " << endl;
+    numW = GetCorrectNumber(0, numA);
+}
+
 istream& operator >> (istream& in, CS& c)
 {
     cout << "Name of the Compressor Station ";

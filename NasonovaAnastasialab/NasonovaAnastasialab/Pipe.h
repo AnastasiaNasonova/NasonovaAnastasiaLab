@@ -18,6 +18,7 @@ public:
     int getDiameter() { return d; }
     float getLenght() { return l; }
     bool getRepair() { return r; }
+    void redact();
 
     friend std::ostream& operator <<(std::ostream& out, const Pipe& p);
     friend std::istream& operator >>(std::istream& in, Pipe& p);
