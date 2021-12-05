@@ -126,19 +126,18 @@ void Savec(const unordered_map <int, CS>& CSs, ofstream& fout)
 void Load(unordered_map<int, Pipe>& Pipes, unordered_map<int, CS>& CSs, ifstream& fin)
 {
     int count1, count2, MaxPipeID, MaxCSID;
-    string str;
     fin >> count1;
     fin >> MaxPipeID;
-    while(count1--)
+    fin >> count2;
+    fin >> MaxCSID;
+    for (int i = 0; i< count1; i++)
     {
         Pipe p;
         fin >> p;
         Pipes.insert({ p.getId(), p });
     }
 
-    fin >> count2;
-    fin >> MaxCSID;
-    while(count2--)
+    for (int i = 0; i < count2; i++)
     {
         CS c;
         fin >> c;
@@ -149,48 +148,202 @@ void Load(unordered_map<int, Pipe>& Pipes, unordered_map<int, CS>& CSs, ifstream
     CS::setMaxID(MaxCSID);
 }
 
-
-
-//Pipe& SelectPipe(unordered_map<int, Pipe>& Pipes)
-//{
-//    cout << "Enter index: ";
-//    unsigned int index = GetCorrectNumber(1u, Pipes.size());
-//    return Pipes[index - 1];
-//}
+//template<typename T, typename T_param>
+//using Filter = bool(*)(const T& map, T_param param);
 //
-//CS& SelectCS(unordered_map<int, CS>& CSs)
+//template<typename T, typename T_param>
+//vector<int> search_filter(const unordered_map<int, T>& map, Filter<T, T_param> f, T_param param)
 //{
-//    cout << "Enter index: ";
-//    unsigned int index = GetCorrectNumber(1u, CSs.size());
-//    return CSs[index - 1];
-//}
-
-template<typename T, typename T_param>
-using Filter = bool(*)(const T& map, T_param param);
-
-template<typename T, typename T_param>
-vector<int> search_filter(const unordered_map<int, T>& map, Filter<T, T_param> f, T_param param)
-{
-    vector<int> res;
-    for (auto& m : map)
-        if (f(m.second, param))
-            res.push_back(m.first);
-    return res;
-}
-
-//template<typename T>
-//unordered_map <int, Pipe> FindPipebyFilter(const unordered_map<int, Pipe>& Pipes, Filter<T> f, T param)
-//{
-//    unordered_map <int, Pipe> res;
-//    int i = 0;
-//    for (auto& p : Pipes)
-//    {
-//        if (f(p, param))
-//            res.insert({ i, p });
-//        i++;
-//    }
+//    vector<int> res;
+//    for (auto& m : map)
+//        if (f(m.second, param))
+//            res.push_back(m.first);
 //    return res;
 //}
+
+vector<int> searchByRepear( unordered_map<int, Pipe>& Pipes, const bool& r)
+{
+    vector<int> res;
+    for (auto& p : Pipes) {
+        if (p.second.getRepair() == r)
+            res.push_back(p.first);
+    }
+    return res;
+}
+void editPipes(unordered_map<int, Pipe>& Pipes)
+{
+    if (Pipes.size() == 0)
+        cout << "No pipes." << endl;
+    else {
+        for (;;)
+        {
+            cout << " Search Pipe by ... " << endl
+                << " 1. Search by ID" << endl
+                << " 2. Search for pipes for repair" << endl
+                << " 0. Exit" << endl;
+            switch (GetCorrectNumber(1, 2))
+            {
+            case 1: // поиск по ID
+            {
+                cout << " Enter ID pipes for editing or enter 0: " << endl;
+                int id;
+                vector<int> editID;
+                do {
+                    id = GetCorrectNumber(0, INT_MAX);
+                    if (SearchByID(Pipes, id) != 0)
+                        editID.push_back(id);
+                } while (id != 0);
+
+                cout << " 1. Change the status of pipe repair " << endl
+                    << " 2. Delete pipe" << endl
+                    << " 0. exit" << endl;
+                switch (GetCorrectNumber(0, 2))
+                {
+                case 1:
+                {
+                    if (editID.size() != 0) {
+                        cout << "Redacted.";
+                        for (auto& id : editID)
+                            Pipes[id].redact();
+                    }
+                    else cout << "No pipes." << endl;
+                    break;
+                }
+                case 2:
+                {
+                    if (editID.size() != 0)
+                    {
+                        for (auto& id : editID)
+                            del(Pipes, id);
+                    }
+
+                }
+                case 0:
+                    return;
+                }
+            }
+            case 2: // поиск по статусу ремонта
+            {
+                bool stat;
+                cout << "Press 0 to find all pipes in repair or 1 to find all working pipes " << endl;
+                stat = GetCorrectNumber(0, 1);
+                vector <int> res = searchByRepear(Pipes, stat);
+                cout << " 1. Change the status of pipe repair " << endl
+                    << " 2. Delete pipes " << endl
+                    << " 0. Exit " << endl;
+                switch (GetCorrectNumber(0, 2))
+                {
+                case 1:
+                {
+                    if (res.size() != 0)
+                    {
+                        for (auto& id : res)
+                            Pipes[id].redact();
+                    }
+                    else cout << "No pipes." << endl;
+                    break;
+                }
+                case 2:
+                {
+                    if (res.size() != 0)
+                    {
+                        for (auto& id : res)
+                            del(Pipes, id);
+                    }
+                    else cout << "No pipes." << endl;
+                    break;
+                }
+                case 0:
+                    return;
+                }
+            }
+            case 0:
+                return;
+            }
+        }
+    }
+}
+void editCSs(unordered_map<int, CS>& CSs)
+{
+    if (CSs.size() == 0)
+        cout << "No pipes." << endl;
+    else {
+        for (;;)
+        {
+            cout << " Search CS by ... " << endl
+                << " 1. Search by ID" << endl
+                << " 2. Search by name" << endl
+                << " 3. Search by % of unused workshops" << endl
+                << " 0. Exit" << endl;
+            switch (GetCorrectNumber(0, 3))
+            {
+            case 1: // поиск по ID
+            {
+                cout << " Enter ID cs for editing or enter 0: " << endl;
+                int id;
+                vector<int> editID;
+                do {
+                    id = GetCorrectNumber(0, INT_MAX);
+                    if (SearchByID(CSs, id) != 0)
+                        editID.push_back(id);
+                } while (id != 0);
+
+                cout << " 1. Change the number of workshops " << endl
+                    << " 2. Delete pipe" << endl
+                    << " 0. exit" << endl;
+                switch (GetCorrectNumber(0, 2))
+                {
+                case 1:
+                {
+                    if (editID.size() != 0) {
+                        cout << "Redacted.";
+                        for (auto& id : editID)
+                            CSs[id].redact();
+                    }
+                    else cout << "No CS." << endl;
+                    break;
+                }
+                case 2:
+                {
+                    if (editID.size() != 0)
+                    {
+                        for (auto& id : editID)
+                            del(CSs, id);
+                    }
+
+                }
+                case 0:
+                    return;
+                }
+            }
+            }
+        }
+    }
+
+}
+void RedactingByFilter(unordered_map<int, Pipe>& Pipes, unordered_map<int, CS>& CSs)
+{
+    for (;;) {
+        cout << "1. Redact Pipes " << endl
+            << "2. Redact Stations " << endl
+            << "0. Exit " << endl;
+        switch (GetCorrectNumber(0,2))
+        {
+        case 1:
+        {
+            editPipes(Pipes);
+            break;
+        }
+        case 2:
+        {
+            editCSs(CSs);
+            break;
+        }
+        case 0:
+            return;
+        }
+    }
+}
 
 
 template<typename T>
@@ -242,10 +395,12 @@ int main()
             << "\n 5. Redact CS"
             << "\n 6. Save"
             << "\n 7. Load"
-            << "\n 8. Find Compressor Ststion by Name"
+            << "\n 8. Delete pipe"
+            << "\n 9. Delete station"
+            << "\n 10 Pacet Redact"
             << "\n 0. Exit\n";
 
-        switch (GetCorrectNumber(0,9))
+        switch (GetCorrectNumber(0,10))
         {       
         case 1:
         {
@@ -268,12 +423,14 @@ int main()
                 cout << "Pipes: " << endl;
                 PrintPipe(Pipes);
             }
-            
+            else cout << "No pipes." << endl;
+
             if (CSs.size() != 0)
             {
                 cout << endl << "Compession Station: " << endl;
                 PrintCS(CSs);
-            }       
+            }
+            else cout << "No stations." << endl;
             break;
         }
         case 4:
@@ -298,21 +455,20 @@ int main()
             cin.ignore(10000, '\n');
             getline(cin, name);
             ofstream fout;
-            fout.open(name + ".txt", ios::out);
+            fout.open(name, ios::out);
             if (fout.is_open())
             {
-                if (Pipes.size() != 0) 
-                {
-                   fout << Pipes.size() << endl << Pipe::getMaxID() << endl;
-                   Savep(Pipes, fout);
-                }
-                    
+                if (Pipes.size() != 0)
+                    fout << Pipes.size() << endl << Pipe::getMaxID() << endl;
+                else fout << 0 << endl << 0 << endl;                    
                 if (CSs.size() != 0)
-                {
                     fout << CSs.size() << endl << CS::getMaxID() << endl;
-                    Savec(CSs, fout);
-                }
+                else fout << 0 << endl << 0 << endl;
 
+                if (Pipes.size() != 0)
+                    Savep(Pipes, fout);
+                if (CSs.size() != 0)
+                    Savec(CSs, fout);
                 cout << "Saved.";
             }
             fout.close();
@@ -325,10 +481,11 @@ int main()
             cin.ignore(10000, '\n');
             getline(cin, name);
             ifstream fin;
-            fin.open(name + ".txt", ios::in);
+            fin.open(name, ios::in);
             
             if (fin.is_open())
                 Load(Pipes, CSs, fin);
+            else cout << "error";
             fin.close();
             cout << "Loaded.";
            
@@ -343,6 +500,11 @@ int main()
         case 9:
         {
             Delete(CSs);
+            break;
+        }
+        case 10:
+        {
+            RedactingByFilter(Pipes, CSs);
             break;
         }
         case 0:

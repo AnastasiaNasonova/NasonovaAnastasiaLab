@@ -5,11 +5,11 @@
 #include <string>
 
 using namespace std;
-int CS::MaxID = 1;
+int CS::MaxID = 0;
 
 CS::CS()
 {
-	id = MaxID++;
+	id = ++MaxID;
 	name = "";
 	numA = 0;
 	numW = 0;

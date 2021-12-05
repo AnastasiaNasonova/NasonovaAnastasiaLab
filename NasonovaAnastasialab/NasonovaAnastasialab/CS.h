@@ -16,9 +16,9 @@ public:
     static int getMaxID() { return MaxID; }
     int getID() { return id; }
 
-    std::string getName() const { return name; }
-    int getNumA() const { return numA; }
-    int getNumW() const { return numW; }
+    std::string getName() { return name; }
+    int getNumA() { return numA; }
+    int getNumW() { return numW; }
     void redact();
 
     friend std::ostream& operator <<(std::ostream& out, const CS& c);

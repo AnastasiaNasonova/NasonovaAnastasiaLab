@@ -4,11 +4,11 @@
 #include "proverka.h"
 
 using namespace std;
-int Pipe::MaxID = 1;
+int Pipe::MaxID = 0;
 
 Pipe::Pipe()
 {
-	id = MaxID++;
+	id = ++MaxID;
 	d = 0;
 	l = 0;
 	r = 0;
