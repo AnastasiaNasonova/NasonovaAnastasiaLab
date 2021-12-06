@@ -58,18 +58,19 @@ int SearchByID(const T& map, int id) {
     return 0;
 }
 
-int RedactPipes(unordered_map<int, Pipe>& Pipes)
+template<typename T>
+int Redact(T& map)
 {
-    cout << "Enter ID Pipe: " << endl;
+    cout << "Enter ID : " << endl;
     while (true) {
         int id = GetCorrectNumber(0, INT_MAX);
-        if (SearchByID(Pipes, id) != 0)
+        if (SearchByID(map, id) != 0)
         {
-            Pipes[id].redact();
-            cout << "Pipe edided." << endl;
+            map[id].redact();
+            cout << "Redacted." << endl;
             return id;
         }
-        else cout << "No such pipe ID." << endl;
+        else cout << "No such ID." << endl;
     }
 }
 
@@ -148,19 +149,6 @@ void Load(unordered_map<int, Pipe>& Pipes, unordered_map<int, CS>& CSs, ifstream
     CS::setMaxID(MaxCSID);
 }
 
-//template<typename T, typename T_param>
-//using Filter = bool(*)(const T& map, T_param param);
-//
-//template<typename T, typename T_param>
-//vector<int> search_filter(const unordered_map<int, T>& map, Filter<T, T_param> f, T_param param)
-//{
-//    vector<int> res;
-//    for (auto& m : map)
-//        if (f(m.second, param))
-//            res.push_back(m.first);
-//    return res;
-//}
-
 vector<int> searchByRepear( unordered_map<int, Pipe>& Pipes, const bool& r)
 {
     vector<int> res;
@@ -170,6 +158,27 @@ vector<int> searchByRepear( unordered_map<int, Pipe>& Pipes, const bool& r)
     }
     return res;
 }
+
+vector<int> searchByName(unordered_map<int, CS>& CSs, string& name)
+{
+    vector<int> res;
+    for (auto& c : CSs) {
+        if (c.second.getName() == name)
+            res.push_back(c.first);
+    }
+    return res;
+}
+
+vector<int> searchByPercent(unordered_map<int, CS>& CSs, double& proc)
+{
+    vector<int> res;
+    for (auto& c : CSs) {
+        if (round((((double(c.second.getNumA())- double(c.second.getNumW()))/double(c.second.getNumA()) * 100) >= proc)))
+            res.push_back(c.first);
+    }
+    return res;
+}
+
 void editPipes(unordered_map<int, Pipe>& Pipes)
 {
     if (Pipes.size() == 0)
@@ -181,7 +190,7 @@ void editPipes(unordered_map<int, Pipe>& Pipes)
                 << " 1. Search by ID" << endl
                 << " 2. Search for pipes for repair" << endl
                 << " 0. Exit" << endl;
-            switch (GetCorrectNumber(1, 2))
+            switch (GetCorrectNumber(0, 2))
             {
             case 1: // поиск по ID
             {
@@ -202,11 +211,12 @@ void editPipes(unordered_map<int, Pipe>& Pipes)
                 case 1:
                 {
                     if (editID.size() != 0) {
-                        cout << "Redacted.";
+                        cout << "Redacted." << endl;
                         for (auto& id : editID)
                             Pipes[id].redact();
                     }
                     else cout << "No pipes." << endl;
+                    PrintPipe(Pipes);
                     break;
                 }
                 case 2:
@@ -216,11 +226,14 @@ void editPipes(unordered_map<int, Pipe>& Pipes)
                         for (auto& id : editID)
                             del(Pipes, id);
                     }
+                    PrintPipe(Pipes);
+                    break;
 
                 }
                 case 0:
                     return;
                 }
+                break;
             }
             case 2: // поиск по статусу ремонта
             {
@@ -241,6 +254,7 @@ void editPipes(unordered_map<int, Pipe>& Pipes)
                             Pipes[id].redact();
                     }
                     else cout << "No pipes." << endl;
+                    PrintPipe(Pipes);
                     break;
                 }
                 case 2:
@@ -251,11 +265,13 @@ void editPipes(unordered_map<int, Pipe>& Pipes)
                             del(Pipes, id);
                     }
                     else cout << "No pipes." << endl;
+                    PrintPipe(Pipes);
                     break;
                 }
                 case 0:
                     return;
                 }
+                break;
             }
             case 0:
                 return;
@@ -266,7 +282,7 @@ void editPipes(unordered_map<int, Pipe>& Pipes)
 void editCSs(unordered_map<int, CS>& CSs)
 {
     if (CSs.size() == 0)
-        cout << "No pipes." << endl;
+        cout << "No stations." << endl;
     else {
         for (;;)
         {
@@ -296,11 +312,12 @@ void editCSs(unordered_map<int, CS>& CSs)
                 case 1:
                 {
                     if (editID.size() != 0) {
-                        cout << "Redacted.";
                         for (auto& id : editID)
                             CSs[id].redact();
+                        cout << "Redacted." << endl;
                     }
                     else cout << "No CS." << endl;
+                    PrintCS(CSs);
                     break;
                 }
                 case 2:
@@ -310,12 +327,106 @@ void editCSs(unordered_map<int, CS>& CSs)
                         for (auto& id : editID)
                             del(CSs, id);
                     }
-
+                    else cout << "No CS." << endl;
+                    PrintCS(CSs);
+                    break;
                 }
                 case 0:
                     return;
                 }
+                break;
             }
+            case 2: // поиск по имени 
+            {
+                cout << "Enter name satations" << endl;
+                string name;
+                cin.ignore(10000, '\n');
+                getline(cin, name);
+                vector <int> res = searchByName(CSs, name);
+                if (res.size() != 0)
+                {
+                    for (auto& id : res)
+                        cout << CSs[id];
+                }
+                cout << " 1. Change the number of workshops " << endl
+                    << " 2. Delete pipe" << endl
+                    << " 0. exit" << endl;
+                switch (GetCorrectNumber(0, 2))
+                {
+                case 1:
+                {
+                    if (res.size() != 0) {
+                        cout << "Redacted.";
+                        for (auto& id : res)
+                            CSs[id].redact();
+                    }
+                    else cout << "No CS." << endl;
+                    PrintCS(CSs);
+                    break;
+                }
+                case 2:
+                {
+                    if (res.size() != 0)
+                    {
+                        for (auto& id : res)
+                            del(CSs, id);
+                    }
+                    else cout << "No CS." << endl;
+                    PrintCS(CSs);
+                    break;
+                }
+                case 0:
+                    return;
+                }
+                break;
+            
+            }
+            case 3: //по проценту незадействованных цехов
+            {
+                cout << "Enter %  of unused workshops" << endl;
+                double proc = GetCorrectNumber(0.0, 100.0);
+                vector <int> res = searchByPercent(CSs, proc);
+                if (res.size() != 0)
+                {
+                    for (auto& id : res)
+                        cout << CSs[id];
+                }
+                else cout << "No CS." << endl;
+                cout << " 1. Change the number of workshops " << endl
+                    << " 2. Delete pipe" << endl
+                    << " 0. exit" << endl;
+                switch (GetCorrectNumber(0, 2))
+                {
+                case 1:
+                {
+                    if (res.size() != 0) {
+                        cout << "Redacted.";
+                        for (auto& id : res)
+                            CSs[id].redact();
+                    }
+                    else cout << "No CS." << endl;
+                    PrintCS(CSs);
+                    break;
+                }
+                case 2:
+                {
+                    if (res.size() != 0)
+                    {
+                        for (auto& id : res)
+                            del(CSs, id);
+                    }
+                    else cout << "No CS." << endl;
+                    PrintCS(CSs);
+                    break;
+                }
+                case 0:
+                    return;
+                }
+
+                break;
+            }
+            case 0:
+                return;
             }
         }
     }
@@ -344,37 +455,6 @@ void RedactingByFilter(unordered_map<int, Pipe>& Pipes, unordered_map<int, CS>& 
         }
     }
 }
-
-
-template<typename T>
-using Filterc = bool(*)(const CS& c,T param);
-
-//bool CheckbyName(const CS& c, string param)
-//{
-//    return c.name == param;
-//}
-//
-//bool CheckbyWorkingCex(const CS& c, int param)
-//{
-//    return c.numW >= param;
-//}
-
-template<typename T>
-vector <int> FindCSbyFilter(const vector<CS>& CSs, Filterc<T> f, T param)
-{
-    vector <int> res;
-    int i = 0;
-    for (auto& c : CSs)
-    {
-        if (f(c, param))
-            res.push_back(i);
-        i++;
-
-    }
-    return res;
-}
-
-
 
 int main()
 {
@@ -436,7 +516,7 @@ int main()
         case 4:
         {
             if (Pipes.size() != 0)
-                int id = RedactPipes(Pipes);
+                int id = Redact(Pipes);
             else cout << "No Pipe." << endl;
 
             break;
@@ -444,7 +524,7 @@ int main()
         case 5:
         {
             if (CSs.size() != 0)
-                int id = RedactCSs(CSs);
+                int id = Redact(CSs);
             else cout << "No Station." << endl;
             break;
         }
