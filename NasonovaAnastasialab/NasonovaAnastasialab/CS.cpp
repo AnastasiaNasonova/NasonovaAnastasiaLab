@@ -21,6 +21,17 @@ void CS::redact()
     numW = GetCorrectNumber(0, numA);
 }
 
+void CS::link()
+{
+    if (connection == false)
+        connection = true;
+}
+
+void CS::ClearLink()
+{
+    connection = false;
+}
+
 istream& operator >> (istream& in, CS& c)
 {
     cout << "Name of the Compressor Station ";

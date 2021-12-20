@@ -9,6 +9,7 @@ class CS
     int id;
     std::string name;
     int numW, numA;
+    bool connection;
 public: 
     
     CS();
@@ -20,6 +21,8 @@ public:
     int getNumA() { return numA; }
     int getNumW() { return numW; }
     void redact();
+    void link();
+    void ClearLink();
 
     friend std::ostream& operator <<(std::ostream& out, const CS& c);
     friend std::istream& operator >>(std::istream& in, CS& c);

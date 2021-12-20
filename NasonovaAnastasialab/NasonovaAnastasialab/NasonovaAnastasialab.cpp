@@ -10,6 +10,8 @@
 #include "Pipe.h"
 #include "CS.h"
 #include <unordered_set>
+#include <set>
+#include "Sort.h"
 
 
 using namespace std;
@@ -165,6 +167,76 @@ vector<int> searchByPercent(unordered_map<int, CS>& CSs, double& proc)
     return res;
 }
 
+void CreatLink(unordered_map<int, Pipe>& Pipes, unordered_map<int, CS>& CSs)
+{
+    cout << "Enter ID pipe you want to attach " << endl;
+    int id = SearchByID(Pipes, GetCorrectNumber(1, Pipe::getMaxID()));
+    while (Pipes[id].getRepair() != 0)
+    {
+        cout << " Pipe under repair enter another ID" << endl;
+        id = SearchByID(Pipes, GetCorrectNumber(1, Pipe::getMaxID()));
+    }
+    cout << "Enter the ID of the cs from which the pipe exits" << endl;
+    int out = SearchByID(CSs, GetCorrectNumber(1, CS::getMaxID()));
+    cout << "Enter the ID of the cs that the pipe is included in" << endl;
+    int in = SearchByID(CSs, GetCorrectNumber(1, CS::getMaxID()));
+
+    //if (CSs[in].col_pipe >= CSline[in].getWork() && CSline[out].col_pipe >= CSline[out].getWork())
+        //cout << " Недостаточно рабочих цехов в станции" << endl;
+    if (id != 0 && Pipes[id].pin == 0 && Pipes[id].pout == 0 && in != out && out != 0 && in != 0 ) //&& CSs[in].col_pipe < CSs[in].getNumW() && CSse[out].col_pipe < CSs[out].getNumW())
+    {
+        Pipes[id].link(in, out);
+        CSs[in].link();
+        CSs[out].link();
+    }
+    else cout << "Error..." << endl;
+}
+
+void DeleteLink(unordered_map<int, Pipe>& Pipes, unordered_map<int, CS>& CSs)
+{
+    cout << "Enter the ID of the pipe you want to delete: " << endl;
+    int id = SearchByID(Pipes, GetCorrectNumber(1, Pipe::getMaxID()));
+    if (id != 0 && Pipes[id].pin > 0 && Pipes[id].pout > 0)
+    {
+        for (auto& p : Pipes)
+        {
+            CSs[Pipes[id].pin].ClearLink();
+            CSs[Pipes[id].pout].ClearLink();
+            Pipes[id].ClearLink();
+        }
+        cout << "Deleted. " << endl;
+    }
+    else   cout << "Such a pipe is not connected to the network" << endl;
+}
+
+void PrintLink(unordered_map<int, Pipe>& Pipes)
+{
+    for (auto& p : Pipes)
+        if (p.second.pin > 0 && p.second.pout > 0)
+            cout << "kc " << p.second.pout << " --> pipe " << p.first << " -->kc " << p.second.pin << ((p.second.getRepair() == true) ? " Under repair " : " At work ") << endl;
+}
+
+vector<vector<int>> CreateGraph(const unordered_map<int, Pipe>& Pipes, const unordered_map<int, CS>& CSs) {
+    set<int> vertices;
+    for (const auto& p : Pipes)
+        if (p.second.pin > 0 && p.second.pout > 0 && p.second.getRepair() == 0 && CSs.count(p.second.pin) && CSs.count(p.second.pout))
+        {
+            vertices.insert(p.second.pout);
+            vertices.insert(p.second.pin);
+        }
+
+    unordered_map<int, int> VerticesIndex;
+    int i = 0;
+    for (const int& v : vertices)
+        VerticesIndex.insert({ v, i++ });
+    vector<vector<int>> r;
+    r.resize(vertices.size());
+    for (const auto& p : Pipes)
+        if (p.second.pin > 0 && p.second.pout > 0 && p.second.getRepair() == false)
+            r[VerticesIndex[p.second.pout]].push_back(VerticesIndex[p.second.pin]);
+    return r;
+}
+
 void editPipes(unordered_map<int, Pipe>& Pipes)
 {
     if (Pipes.size() == 0)
@@ -184,10 +256,12 @@ void editPipes(unordered_map<int, Pipe>& Pipes)
                 int id;
                 vector<int> editID;
                 do {
-                    id = GetCorrectNumber(0, INT_MAX);
+                    id = GetCorrectNumber(0, Pipe::getMaxID());
                     if (SearchByID(Pipes, id) != 0)
                         editID.push_back(id);
                 } while (id != 0);
+                for (auto i : editID)
+                    cout << Pipes[i];
 
                 cout << " 1. Change the status of pipe repair " << endl
                     << " 2. Delete pipe" << endl
@@ -196,21 +270,56 @@ void editPipes(unordered_map<int, Pipe>& Pipes)
                 {
                 case 1:
                 {
-                    if (editID.size() != 0) {
-                        cout << "Redacted." << endl;
-                        for (auto& id : editID)
-                            Pipes[id].redact();
-                    }
-                    else cout << "No pipes." << endl;
+                    cout << " Enter 1 ID you want redact or redact all 0 ";
+                        if (GetCorrectNumber(0, 1) == 0)
+                        {
+                            if (editID.size() != 0) {
+                                cout << "Redacted." << endl;
+                                for (auto& id : editID)
+                                    Pipes[id].redact();
+                            }
+                            else cout << "No pipes." << endl;
+                        }
+                        else {
+                            unordered_set<int> subres;
+                            cout << "Enter pipe's id to redact or 0 to complete: ";
+                            int id = GetCorrectNumber(0, Pipe::getMaxID());
+                            while (id)
+                            {
+                                subres.insert(id);
+                                id = GetCorrectNumber(0, Pipe::getMaxID());
+                            }
+                            for (auto& pID : editID)
+                                if (subres.count(pID) > 0)
+                                    Pipes[pID].redact();
+                        }
                     PrintPipe(Pipes);
                     break;
                 }
                 case 2:
                 {
-                    if (editID.size() != 0)
+                    cout << " Enter 1 ID you want delete or delete all 0 ";
+                    if (GetCorrectNumber(0, 1) == 0)
                     {
-                        for (auto& id : editID)
-                            DeleteItemFromMap(Pipes, id);
+                        if (editID.size() != 0) {
+                            cout << "Deleted." << endl;
+                            for (auto& id : editID)
+                                DeleteItemFromMap(Pipes, id);
+                        }
+                        else cout << "No pipes." << endl;
+                    }
+                    else {
+                        unordered_set<int> subres;
+                        cout << "Enter pipe's id to delete or 0 to complete: ";
+                        int id = GetCorrectNumber(0, Pipe::getMaxID());
+                        while (id)
+                        {
+                            subres.insert(id);
+                            id = GetCorrectNumber(0, Pipe::getMaxID());
+                        }
+                        for (auto& pID : editID)
+                            if (subres.count(pID) > 0)
+                                DeleteItemFromMap(Pipes, pID);
                     }
                     PrintPipe(Pipes);
                     break;
@@ -227,6 +336,8 @@ void editPipes(unordered_map<int, Pipe>& Pipes)
                 cout << "Press 1 to find all pipes in repair or 0 to find all working pipes " << endl;
                 stat = GetCorrectNumber(0, 1);
                 vector <int> res = searchByRepear(Pipes, stat);
+                for (auto i : res)
+                    cout << Pipes[i];
                
                 cout << " 1. Change the status of pipe repair " << endl
                     << " 2. Delete pipes " << endl
@@ -235,12 +346,29 @@ void editPipes(unordered_map<int, Pipe>& Pipes)
                 {
                 case 1:
                 {
-                    if (res.size() != 0)
+                    cout << " Enter 1 ID you want redact or redact all 0 ";
+                    if (GetCorrectNumber(0, 1) == 0)
                     {
-                        for (auto& id : res)
-                            Pipes[id].redact();
+                        if (res.size() != 0) {
+                            cout << "Redacted." << endl;
+                            for (auto& id : res)
+                                Pipes[id].redact();
+                        }
+                        else cout << "No pipes." << endl;
                     }
-                    else cout << "No pipes." << endl;
+                    else {
+                        unordered_set<int> subres;
+                        cout << "Enter pipe's id to redact or 0 to complete: ";
+                        int id = GetCorrectNumber(0, Pipe::getMaxID());
+                        while (id)
+                        {
+                            subres.insert(id);
+                            id = GetCorrectNumber(0, Pipe::getMaxID());
+                        }
+                        for (auto& pID : res)
+                            if (subres.count(pID) > 0)
+                                Pipes[pID].redact();
+                    }
                     PrintPipe(Pipes);
                     break;
                 }
@@ -491,10 +619,14 @@ int main()
             << "\n 7. Load"
             << "\n 8. Delete pipe"
             << "\n 9. Delete station"
-            << "\n 10 Pacet Redact"
+            << "\n 10. Pacet Redact"
+            << "\n 11. Add a pipe to the network"
+            << "\n 12. Delete Links"
+            << "\n 13. Show links"
+            << "\n 14. Topological sorting"
             << "\n 0. Exit\n";
 
-        switch (GetCorrectNumber(0, 10))
+        switch (GetCorrectNumber(0, 14))
         {
         case 1:
         {
@@ -599,6 +731,45 @@ int main()
         case 10:
         {
             RedactingByFilter(Pipes, CSs);
+            break;
+        }
+        case 11:
+        {
+            if (Pipes.size() > 0 && CSs.size() > 1)
+                CreatLink(Pipes, CSs);
+            else cout << " No data " << endl;
+            break;
+        }
+        case 12:
+        {
+            if (Pipes.size() > 0 && CSs.size() > 1)
+                DeleteLink(Pipes, CSs);
+            else cout << "Eerrorrr..." << endl;
+            break;
+        }
+        case 13:
+        {
+            if (Pipes.size() > 0 && CSs.size() > 1)
+                PrintLink(Pipes);
+            else cout << " No data " << endl;
+            break;
+        }
+        case 14:
+        {
+            vector<vector<int>> r = CreateGraph(Pipes, CSs);
+            Sort Topolog(r);
+            set<int> vertices;
+            for (const auto& p : Pipes)
+                if (p.second.pin > 0 && p.second.pout > 0 && p.second.getRepair() == false && CSs.count(p.second.pin) && CSs.count(p.second.pout))
+                {
+                    vertices.insert(p.second.pout);
+                    vertices.insert(p.second.pin);
+                }
+            unordered_map<int, int> VerticesIndex;
+            int i = 0;
+            for (const int& v : vertices)
+                VerticesIndex.insert({ i++, v });
+            Topolog.TopSort(VerticesIndex);
             break;
         }
         case 0:

@@ -12,11 +12,29 @@ Pipe::Pipe()
 	d = 0;
 	l = 0;
 	r = 0;
+    pin = 0;
+    pout = 0;
 }
 
 void Pipe::redact()
 {
     r = !r;
+}
+
+void Pipe::link(int in, int out)
+{
+    if (pin == 0 && pout == 0 && in != out)
+    {
+        pin = in;
+        pout = out;
+    }
+    else cout << "error..." << endl;
+}
+
+void Pipe::ClearLink()
+{
+    pin = 0;
+    pout = 0;
 }
 
 
@@ -45,7 +63,9 @@ std::ofstream& operator << (std::ofstream& fout, const Pipe& p)
         fout << p.id << endl
             << p.d << endl
             << p.l << endl
-            << p.r << endl;
+            << p.r << endl
+            << p.pin << endl
+            << p.pout << endl;
     }
     return fout;
 }
@@ -58,6 +78,8 @@ std::ifstream& operator>>(std::ifstream& fin, Pipe& p)
         fin >> p.d;
         fin >> p.l;
         fin >> p.r;
+        fin >> p.pin;
+        fin >> p.pout;
     }
     return fin;
 }
